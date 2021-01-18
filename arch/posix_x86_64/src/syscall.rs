@@ -28,23 +28,23 @@ static mut APP_HARD_FAULT: usize = 0;
 pub static mut RUNNING_KERNEL: bool = true;
 
 /// Posix reserved space
-#[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+#[cfg(target_arch = "x86_64")]
 const POSIX_RESERVED_LEN: usize = 5;
 
-#[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+#[cfg(target_arch = "x86_64")]
 const POSIX_REGISTERS_LEN: usize = 23;
 
-#[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+#[cfg(target_arch = "x86_64")]
 const POSIX_NEXT_USER_PC: usize = 8;
 
-#[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+#[cfg(target_arch = "x86_64")]
 const POSIX_NEXT_KERNEL_PC: usize = 8;
 
 /// The AMD64 registers
-#[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+#[cfg(target_arch = "x86_64")]
 pub type RegsData = [usize; 23];
 
-#[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+#[cfg(target_arch = "x86_64")]
 #[derive(Debug, Default, Copy, Clone)]
 #[repr(C)]
 pub struct PosixContext {
@@ -52,7 +52,7 @@ pub struct PosixContext {
     pub(crate) regs: RegsData,
 }
 
-#[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+#[cfg(target_arch = "x86_64")]
 #[repr(usize)]
 #[allow(non_snake_case)]
 pub enum Regs {
@@ -84,43 +84,43 @@ pub enum Regs {
 impl Regs {
     #[inline]
     pub fn pc() -> Regs {
-        #[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+        #[cfg(target_arch = "x86_64")]
         Regs::RIP
     }
 
     #[inline]
     pub fn sp() -> Regs {
-        #[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+        #[cfg(target_arch = "x86_64")]
         Regs::RSP
     }
 
     #[inline]
     pub fn r0() -> Regs {
-        #[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+        #[cfg(target_arch = "x86_64")]
         Regs::RAX
     }
 
     #[inline]
     pub fn r1() -> Regs {
-        #[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+        #[cfg(target_arch = "x86_64")]
         Regs::RBX
     }
 
     #[inline]
     pub fn r2() -> Regs {
-        #[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+        #[cfg(target_arch = "x86_64")]
         Regs::RCX
     }
 
     #[inline]
     pub fn r3() -> Regs {
-        #[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+        #[cfg(target_arch = "x86_64")]
         Regs::RDX
     }
 
     #[inline]
     pub fn r4() -> Regs {
-        #[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+        #[cfg(target_arch = "x86_64")]
         Regs::R10
     }
 }
@@ -154,7 +154,7 @@ impl PosixContext {
     }
 
     pub fn first_run(&mut self, kernel_context: &Self) {
-        #[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+        #[cfg(target_arch = "x86_64")]
         {
             self.write_register(Regs::CSGSFS, kernel_context.read_register(Regs::CSGSFS));
             self.write_register(Regs::ERR, kernel_context.read_register(Regs::ERR));
@@ -240,7 +240,7 @@ pub unsafe fn switch_context_user(user_state: &mut PosixStoredState, context: &m
 #[no_mangle]
 fn switch_to_user() {
     unsafe {
-        #[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+        #[cfg(target_arch = "x86_64")]
         llvm_asm!(
             "
             mov rax, 0x515CA11F
@@ -378,7 +378,7 @@ impl kernel::syscall::UserspaceKernelBoundary for SysCall {
         let mut stack_bottom = stack_pointer as *mut usize;
         state.sys_pc = callback.pc;
 
-        #[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+        #[cfg(target_arch = "x86_64")]
         {
             // add the yield RIP value to the stack
             std::ptr::write_volatile(stack_bottom.offset(-1), state.yield_pc);
@@ -478,7 +478,7 @@ impl kernel::syscall::UserspaceKernelBoundary for SysCall {
         state: &PosixStoredState,
         writer: &mut dyn Write,
     ) {
-        #[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+        #[cfg(target_arch = "x86_64")]
         {
             let flags = state.context.read_register(Regs::EFL);
 
