@@ -1,10 +1,18 @@
-# Makefile for building the tock kernel as a Linux process 
+# Makefile for building the tock kernel as a Linux process
 #
 
 # AMD64
 CPU=x86_64
 
-TARGET=$(CPU)-unknown-linux-gnu
+# Choose target based on the host OS
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+    TARGET=$(CPU)-unknown-linux-gnu
+endif
+ifeq ($(UNAME_S),Darwin)
+    TARGET=$(CPU)-apple-darwin
+endif
+
 PLATFORM=linux_process_x86_64
 
 RUSTC_FLAGS=

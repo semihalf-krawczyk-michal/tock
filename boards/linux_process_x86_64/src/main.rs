@@ -29,8 +29,20 @@ static mut CHIP: Option<&'static linux_x86_64::chip::Linux> = None;
 // How should the kernel respond when a process faults.
 const FAULT_RESPONSE: kernel::procs::FaultResponse = kernel::procs::FaultResponse::Panic;
 
+// Space for apps. Slightly different syntax on mac vs. linux.
+
+#[cfg(all(target_arch = "x86_64", target_os = "linux"))]
 #[link_section = ".apps"]
 static mut APP_FLASH: [u8; 256 * 1024] = [0; 256 * 1024];
+#[cfg(all(target_arch = "x86_64", target_os = "linux"))]
+#[link_section = ".apps"]
+static mut APP_RAM: [u8; 256 * 1024] = [0; 256 * 1024];
+
+#[cfg(all(target_arch = "x86_64", target_os = "macos"))]
+#[link_section = "__TEXT,.apps"]
+static mut APP_FLASH: [u8; 256 * 1024] = [0; 256 * 1024];
+#[cfg(all(target_arch = "x86_64", target_os = "macos"))]
+#[link_section = "__TEXT,.apps"]
 static mut APP_RAM: [u8; 256 * 1024] = [0; 256 * 1024];
 
 // #[no_mangle]
